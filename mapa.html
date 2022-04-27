@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Mapa Ao Vivo</title>
+    <style>
+        body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100vw;
+}
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+    <script src="http://www.liedman.net/leaflet-realtime/dist/leaflet-realtime.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="">
+</head>
+<body>
+    <div class="absolute z-[99999999999999999999999] mx-auto w-full pt-2">
+        <div class="relative flex items-center justify-center">
+            <div class="bg-red-500 rounded-lg text-white px-4 py-2">
+                <div>Última atualização: <div id="lastatt"></div></div>
+            </div>
+        </div>
+    </div>
+    <div id="map"></div>
+</body>
+<script>
+
+    fetch("https://api.sheetson.com/v2/sheets/GPS", {
+    headers: {
+        "Authorization": "Bearer 5KNaOwoQEzwNy8GsenHjIkdsw6-Okffqlh4bcACZI5ryjDsNq6EvtKWXrJk",
+        "X-Spreadsheet-Id": "1QfAEjc9z7GWSku14CzIcDRr-9FBwPDBUVriHmavmTik",
+        "Content-Type": "application/json"
+    }
+    }).then(r => r.json())
+    .then(result => {
+        let length = result.results.length - 1;
+        let last = result.results[length];
+
+        var ld = new Date();
+
+        document.getElementById("lastatt").innerText = last.day + "/" + last.month + " às " + last.hour + ":" + last.minute + ":" + last.sec;
+
+        var map = L.map('map').setView([last.latitude.toString().replace(",", "."), last.longitude.toString().replace(",", ".")], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        L.marker([last.latitude.toString().replace(",", "."), last.longitude.toString().replace(",", ".")]).addTo(map)
+        .bindPopup('Ele está aqui')
+        .openPopup();
+
+    })
+
+    //setInterval(function () { document.location.reload(true); }, 10000);
+
+</script>
+</html>
